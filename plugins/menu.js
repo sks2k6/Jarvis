@@ -74,7 +74,7 @@ System({
         }
         menu += `\n┃  ╰─────────────···▸`;
     }
-    menu += ` ╰━━━━━━━━━━━┈⊷\nmade with 🤍`;
+    menu += ` ╰━━━━━━━━━━━┈⊷\nmade with ˢᵏˢ`;
     let url = BOT_INFO.split(';')[2];
     let options = url.includes('&gif') ? { gifPlayback: true, caption: menu } : { caption: menu };  
     url = url.replace(/&gif/g, '');
@@ -89,7 +89,7 @@ System({
     type: "info"
 }, async (message, match) => {
     if (match === "cmd") return;
-    let menu = "\nمصنوع من🤍\n\n";
+    let menu = "\nsks\n\n";
     let cmnd = plugins.commands.filter(command => !command.dontAddCommandList && command.pattern);
     cmnd = cmnd.map(command => ({
         cmd: command.pattern.toString().match(/(\W*)([A-Za-züşiğ öç1234567890]*)/)[2],
