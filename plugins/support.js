@@ -15,11 +15,11 @@ const { getJson, getBuffer, System, isPrivate, sleep } = require("../lib/");
 System({
     pattern: "help",
     fromMe: isPrivate,
-    desc: "jarvis-md support",
+    desc: "sks support",
     type: "support"
 }, async (message) => {
-    const name = 'ɪʀᴏɴ ᴍᴀɴ 🎓', title = "ᴊᴀʀᴠɪꜱ ꜱᴜᴩᴩᴏʀᴛ 🪄", number = '4915252819677', body = "ɪʀᴏɴ ᴍᴀɴ";
-    const image = "https://graph.org/file/58ea74675af7836579a3a.jpg", sourceUrl = 'https://github.com/Loki-Xer/Jarvis';
+    const name = 'SY4M', title = "ꪶ٭𝑺𝜥𝑺 𝐵𝜣𝑇٭ꫂ", number = '919888280858', body = "syam.fun";
+    const image = "https://cdn.ironman.my.id/q/NDdju.jpg", sourceUrl = 'https://sy4m.vercel.app';
     const logo = await getBuffer(image);
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nORG: powered by Jarvis-md;\nTEL;type=CELL;type=VOICE;waid=${number}:${number}\nEND:VCARD`;
     const adon = { title, body, thumbnail: logo, mediaType: 1, mediaUrl: sourceUrl, sourceUrl, showAdAttribution: true, renderLargerThumbnail: false };
