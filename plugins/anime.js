@@ -10,8 +10,9 @@ Jarvis - Loki-Xer
 ------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 
-const { System, IronMan, isPrivate, getJson, getBuffer } = require("../lib/");
-
+const { System, isPrivate } = require("../lib/");
+const { IronMan, getJson, getBuffer } = require('./client/');
+    
 System({ 
     pattern: "waifu", 
     fromMe: isPrivate, 
@@ -35,7 +36,7 @@ System({
 });
 
 System({
-    pattern: 'fanime (.*)',
+    pattern: 'fanime',
     fromMe: isPrivate,
     desc: 'find anime details',
     type: 'anime',
@@ -56,7 +57,7 @@ System({
 });
 
 System({
-    pattern: 'aquote ?(.*)',
+    pattern: 'aquote',
     fromMe: isPrivate,
     desc: 'Get a random anime quote',
     type: 'anime',

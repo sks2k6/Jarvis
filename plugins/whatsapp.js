@@ -13,20 +13,19 @@ const { System, setData } = require("../lib");
 const { parsedJid } = require("./client/");
 
 System({
-    pattern: "jid",
+    pattern: "(jid|lid)",
     fromMe: true,
     type: "whatsapp",
     desc: "Give JID of chat/user",
 }, async (message) => {
-	if (message.quoted && message.reply_message?.sender) return await message.send(message.reply_message.sender);
-	return await message.send(message.jid);
+    let jid = message.quoted && message.reply_message.i ? message.reply_message.sender : message.jid;
+    return await message.send(jid);
 });
 
 System({
-    pattern: "pp$",
+    pattern: "(pp|fullpp|setpp)",
     fromMe: true,
     type: "whatsapp",
-    alias: ['fullpp', 'setpp'],
     desc: "Set full screen profile picture",
 }, async (message, match) => {
     if (match === "remove") {
@@ -68,80 +67,59 @@ System({
 });
 
 System({
-	pattern: 'clear ?(.*)',
+	pattern: 'clear',
 	fromMe: true,
 	desc: 'delete whatsapp chat',
 	type: 'whatsapp'
 }, async (message, match) => {
-	await message.client.chatModify({ delete: true, lastMessages: [{ key: message.data.key, messageTimestamp: message.messageTimestamp }] }, message.jid);
+	await message.client.chatModify({ delete: true, lastMessages: [message.data] }, message.jid);
 	await message.reply('_Cleared.._')
 });
 
 System({
-	pattern: 'archive ?(.*)',
+	pattern: 'archive',
 	fromMe: true,
 	desc: 'archive whatsapp chat',
 	type: 'whatsapp'
 }, async (message, match) => {
-	const lstMsg = {
-		message: message.message,
-		key: message.key,
-		messageTimestamp: message.messageTimestamp
-	};
-	await message.client.chatModify({
-		archive: true,
-		lastMessages: [lstMsg]
-	}, message.jid);
+	await message.client.chatModify({ archive: true, lastMessages: [message.data] }, message.jid);
 	await message.reply('_Archived.._')
 });
 
 System({
-	pattern: 'unarchive ?(.*)',
+	pattern: 'unarchive',
 	fromMe: true,
 	desc: 'unarchive whatsapp chat',
 	type: 'whatsapp'
 }, async (message, match) => {
-	const lstMsg = {
-		message: message.message,
-		key: message.key,
-		messageTimestamp: message.messageTimestamp
-	};
-	await message.client.chatModify({
-		archive: false,
-		lastMessages: [lstMsg]
-	}, message.jid);
+	await message.client.chatModify({ archive: false, lastMessages: [message.data] }, message.jid);
 	await message.reply('_Unarchived.._')
 });
 
 System({
-	pattern: 'chatpin ?(.*)',
+	pattern: 'chatpin',
 	fromMe: true,
 	desc: 'pin a chat',
 	type: 'whatsapp'
 }, async (message, match) => {
-	await message.client.chatModify({
-		pin: true
-	}, message.jid);
+	await message.client.chatModify({ pin: true }, message.jid);
 	await message.reply('_Pined.._')
 });
 
 System({
-	pattern: 'unpin ?(.*)',
+	pattern: 'unpin',
 	fromMe: true,
 	desc: 'unpin a msg',
 	type: 'whatsapp'
 }, async (message, match) => {
-	await message.client.chatModify({
-		pin: false
-	}, message.jid);
+	await message.client.chatModify({ pin: false }, message.jid);
 	await message.reply('_Unpined.._')
 });
 
 System({
-    pattern: "block",
+    pattern: "(block|blk)",
     fromMe: true,
     type: "whatsapp",
-    alias: ['blk'],
     desc: "Block a user",
 }, async (message, match) => {
     if (match === "list") {
@@ -157,10 +135,9 @@ System({
 });
 
 System({
-    pattern: "unblock",
+    pattern: "(unblock|unblk)",
     fromMe: true,
     type: "whatsapp",
-    alias: ['unblk'],
     desc: "Unblock a user"
 }, async (message, match) => {
     if (match === "all") {
@@ -192,7 +169,7 @@ System({
 });
 
 System({
-    pattern: 'setname ?(.*)',
+    pattern: 'setname',
     fromMe: true,
     desc: 'To change your profile name',
     type: 'whatsapp'
@@ -219,7 +196,7 @@ System({
 });
 
 System({
-    pattern: 'caption ?(.*)',
+    pattern: 'caption',
     fromMe: true,
     type: 'whatsapp',
     desc: 'Change video or image caption'
@@ -230,7 +207,7 @@ System({
 });
 
 System({
-	pattern: 'getprivacy ?(.*)',
+	pattern: 'getprivacy',
 	fromMe: true,
 	desc: 'get your privacy settings',
 	type: 'privacy'
@@ -242,7 +219,7 @@ System({
 });
 
 System({
-	pattern: 'lastseen ?(.*)',
+	pattern: 'lastseen',
 	fromMe: true,
 	desc: 'to change lastseen privacy',
 	type: 'privacy'
@@ -256,7 +233,7 @@ System({
 
 
 System({
-	pattern: 'online ?(.*)',
+	pattern: 'online',
 	fromMe: true,
 	desc: 'to change online privacy',
 	type: 'privacy'
@@ -270,7 +247,7 @@ System({
 
 
 System({
-	pattern: 'mypp ?(.*)',
+	pattern: 'mypp',
 	fromMe: true,
 	desc: 'privacy setting profile picture',
 	type: 'privacy'
@@ -284,7 +261,7 @@ System({
 
 
 System({
-	pattern: 'mystatus ?(.*)',
+	pattern: 'mystatus',
 	fromMe: true,
 	desc: 'privacy for my status',
 	type: 'privacy'
@@ -297,7 +274,7 @@ System({
 });
 
 System({
-	pattern: 'read ?(.*)',
+	pattern: 'read',
 	fromMe: true,
 	desc: 'privacy for read message',
 	type: 'privacy'
@@ -311,7 +288,7 @@ System({
 
 
 System({
-	pattern: 'groupadd ?(.*)',
+	pattern: 'groupadd',
 	fromMe: true,
 	desc: 'privacy for group add',
 	type: 'privacy'
@@ -324,7 +301,7 @@ System({
 });
 
 System({
-    pattern: 'msgpin ?(.*)',
+    pattern: 'msgpin',
     fromMe: true,
     type: 'whatsapp',
     desc: 'pin a message in chat'

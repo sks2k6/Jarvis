@@ -17,18 +17,19 @@ const {
     transformData,
     makeInDb
 } = require('../lib');
-const { parsedJid, isAdmin } = require("./client/");
+const { parsedJid, isBotAdmins } = require("./client/");
 const actions = ['kick','warn','null']
 
 
 System({
-    pattern: 'antiword ?(.*)',
+    pattern: 'antiword',
     type: "manage",
     fromMe: true,
     onlyGroup: true,
     adminAccess: true,
     desc: 'remove users who use restricted words'
 }, async (message, match) => {
+    if (!await isBotAdmins(message)) return await message.send("_I'm not an admin_");
     if (!match) return await message.reply("_*antiword* on/off_\n_*antiword* action warn/kick/null_");
     const antiword = await transformData(message.jid, "antiword")
     if(match.toLowerCase() == 'get') {
@@ -62,13 +63,14 @@ System({
 });
 
 System({
-    pattern: 'antilink ?(.*)',
+    pattern: 'antilink',
     type: "manage",
     fromMe: true,
     onlyGroup: true,
     adminAccess: true,
     desc: 'remove users who use bot'
 }, async (message, match) => {
+    if (!await isBotAdmins(message)) return await message.send("_I'm not an admin_");
     if (!match) return await message.reply(`_*antilink* on/off/get_\n_*antilink* action warn/kick/null_\n_*antilink:* null/whatsapp.com_`);
     const antilink = await transformData(message.jid, "antilink");
     if(match.toLowerCase() === 'on') {
@@ -105,13 +107,14 @@ System({
 });
 
 System({
-    pattern: 'antifake ?(.*)',
+    pattern: 'antifake',
     fromMe: true,
     type: 'manage',
     onlyGroup: true,
     adminAccess: true,
     desc: 'remove fake numbers'
 }, async (message, match) => {
+    if (!await isBotAdmins(message)) return await message.send("_I'm not an admin_");
     if (!match) return await message.reply('_*antifake* 94,92_\n_*antifake* on/off_\n_*antifake* list_');
     const { antifake } = await getData(message.chat);
     if(match.toLowerCase()==='get'){
@@ -134,13 +137,14 @@ System({
 });
 
 System({
-    pattern: 'antibot ?(.*)',
+    pattern: 'antibot',
     type: "manage",
     fromMe: true,
     onlyGroup: true,
     adminAccess: true,
     desc: 'remove users who use bot'
 }, async (message, match) => {
+    if (!await isBotAdmins(message)) return await message.send("_I'm not an admin_");
     if (!match) return await message.reply("_*antibot* on/off_\n_*antibot* action warn/kick/null_");
     const { antibot } = await getData(message.chat)
     if(match.toLowerCase() === 'on') {
@@ -161,13 +165,14 @@ System({
 });
 
 System({
-    pattern: 'antidemote ?(.*)',
+    pattern: 'antidemote',
     type: 'manage',
     fromMe: true,
     onlyGroup: true,
     adminAccess: true,
     desc: 'demote actor and re-promote demoted person'
 }, async (message, match) => {
+    if (!await isBotAdmins(message)) return await message.send("_I'm not an admin_");
     if (!match) return await message.send("Choose settings to change antidemote settings", { values: [{ displayText: "on", id: "antidemote on"}, { displayText: "off", id: "antidemote off"}], onlyOnce: true, withPrefix: true, participates: [message.sender] }, "poll");
     if (match != 'on' && match != 'off') return message.reply('_antidemote on_');
     const { antidemote } = await getData(message.jid);
@@ -183,14 +188,14 @@ System({
 });
 
 System({
-    pattern: 'antipromote ?(.*)',
+    pattern: 'antipromote',
     type: 'manage',
     fromMe: true,
     onlyGroup: true,
     adminAccess: true,
     desc: 'demote actor and re-promote demoted person'
 }, async (message, match) => {
-    if(!message.isGroup) return;
+    if (!await isBotAdmins(message)) return await message.send("_I'm not an admin_");
     if (!match) return await message.send("Choose settings to change antipromote settings", { values: [{ displayText: "on", id: "antipromote on"}, { displayText: "off", id: "antipromote off"}], onlyOnce: true, withPrefix: true, participates: [message.sender] }, "poll");
     if (match != 'on' && match != 'off') return message.reply('antipromote on');
     const { antipromote } = await getData(message.chat);
@@ -232,13 +237,14 @@ System({
 
 
 System({
-    pattern: 'welcome ?(.*)',
+    pattern: 'welcome',
     type: 'greetings',
     fromMe: true,
     onlyGroup: true,
     adminAccess: true,
     desc: 'set welcome message'
 }, async (message, match) => {
+    if (!await isBotAdmins(message)) return await message.send("_I'm not an admin_");
     const { welcome } = await getData(message.from);
     if (match.toLowerCase() === 'get') {
         if (!welcome && !welcome.message) return await message.send('*_Not Set Yet_*');
@@ -262,13 +268,14 @@ System({
 });
 
 System({
-    pattern: 'goodbye ?(.*)',
+    pattern: 'goodbye',
     type: 'greetings',
     fromMe: true,
     onlyGroup: true,
     adminAccess: true,
     desc: 'set goodbye message'
 }, async (message, match) => {
+    if (!await isBotAdmins(message)) return await message.send("_I'm not an admin_");
     const { exit } = await getData(message.jid);
     if (match.toLowerCase() === 'get') {
         if (!exit && !exit.message) return await message.send('*_Not Set Yet_*');
@@ -299,6 +306,7 @@ System({
     adminAccess: true,
     desc: "To get info about promot and demote"
 }, async (message, match) => {
+    if (!await isBotAdmins(message)) return await message.send("_I'm not an admin_");
     if (match === "on") { 
       await setData(message.jid, "active", "true", "pdm");
       return await message.send("_*activated*_");
@@ -318,7 +326,7 @@ System({
     adminAccess: true,
     desc: "To give access to group cmds"
 }, async (message, match) => {
-    if (!await isAdmin(message, message.user.jid)) return await message.send("_I'm not an admin_");
+    if (!await isBotAdmins(message)) return await message.send("_I'm not an admin_");
     if (match === "on") { 
       await setData(message.jid, "active", "true", "adminAccess");
       return await message.send("_*activated*_");

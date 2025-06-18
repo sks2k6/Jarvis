@@ -10,11 +10,12 @@ Jarvis - Loki-Xer
 ------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 const plugins = require("../lib/system");
-const { System, isPrivate, isUrl, config } = require("../lib");
+const { System, isPrivate, config } = require("../lib");
 const { BOT_INFO, MEDIA_DATA, MENU_FONT } = require("../config");
 const { uptime } = require("os");
 const { version } = require('../package.json');
 const fancy = require('./client/fancy');
+const { isUrl } = require('./client/');
 
 async function readMore() {
   const readmore = String.fromCharCode(8206).repeat(4001);
@@ -34,11 +35,9 @@ const clockString = (duration) => {
 };
 
 System({
-    pattern: 'menu ?(.*)',
+    pattern: 'menu',
     fromMe: isPrivate,
-    desc: 'Shows the menu of bot',
-    type: 'info',
-    dontAddCommandList: true,
+    dontAddCommandList: true
 }, async (message, match) => {
     let [date, time] = new Date().toLocaleString("en-IN", { timeZone: config.TIMEZONE }).split(",");
     let menu = `╭━━━〔 ${BOT_INFO.split(';')[0]} ⁩〕━━━···▸\n┃╭──────────────···▸\n✧│ *ᴏᴡɴᴇʀ :*  ${BOT_INFO.split(';')[1]}\n✧│ *ᴜsᴇʀ :* ${message.pushName.replace(/[\r\n]+/gm, "")}\n✧│ *ᴘʟᴜɢɪɴs :* ${plugins.commands.length}\n✧│ *ᴅᴀᴛᴇ :* ${date}\n✧│ *ᴛɪᴍᴇ :* ${time}\n✧│ *ᴜᴘᴛɪᴍᴇ :* ${clockString(uptime())}\n✧│ *ᴠᴇʀsɪᴏɴ :* ᴠ${version}\n┃╰──────────────···▸\n╰━━━━━━━━━━━━━━━···▸\n\n\n${await readMore()}\n╭━━━━━━━━━━━━━━━···▸\n╽`;
@@ -76,7 +75,7 @@ System({
     }
     menu += ` ╰━━━━━━━━━━━┈⊷\nmade with ˢᵏˢ`;
     let url = BOT_INFO.split(';')[2];
-    let options = url.includes('&gif') ? { gifPlayback: true, caption: menu } : { caption: menu };  
+    let options = BOT_INFO.includes('&gif') ? { gifPlayback: true, caption: menu } : { caption: menu };  
     url = url.replace(/&gif/g, '');
     if (isUrl(url)) await message.sendFromUrl(url, options);
     else await message.send(menu);
@@ -85,8 +84,7 @@ System({
 System({
     pattern: "list",
     fromMe: isPrivate,
-    desc: "Show All commands",
-    type: "info"
+    dontAddCommandList: true
 }, async (message, match) => {
     if (match === "cmd") return;
     let menu = "\nsks\n\n";
