@@ -17,21 +17,21 @@ services:
       - key: DATABASE_URL
         value: "postgresql://symm_user:vI2sF967PEPOAtPSWCNuqH4YyH57Wm24@dpg-dbnbdms9v7es73c9tpbg-a.singapore-postgres.render.com/symm"
       - key: HANDLER
-        value: "!"
+        value: "."
       - key: WORK_TYPE
         value: "private"
       - key: ERROR_MSG
         value: "true"
       - key: BOT_INFO
-        value: "ᴊᴀʀᴠɪꜱ;ʟᴏᴋɪ-xᴇʀ;https://graph.org/file/f23f574f13baaf790f250.jpg"
+        value: "SKS;SY4M;https://graph.org/file/f23f574f13baaf790f250.jpg"
       - key: AUDIO_DATA
         value: "ᴊᴀʀᴠɪꜱ;ʟᴏᴋɪ-xᴇʀ;https://graph.org/file/76a1d2fe74ba5e5643e16.jpg"
       - key: MEDIA_DATA
         value: "ʟɪꜱᴛᴍᴇɴᴜ;ᴊᴀʀᴠɪꜱ-ᴍᴅ;https://graph.org/file/46ad7e1ba38c82aee6c0d.jpg"
       - key: STICKER_PACKNAME
-        value: "ᴃ𝗍／𝗐𝗈𝗋𝗅𝗗𐌌ꙮ⍆ꕶ🌟🐊❳"
+        value: "⬩⍣࣮͜͜͡͡✯ꪶ٭𝑺𝜥𝑺 B𝜣T٭ꫂ✯࣮͜͜͡͡⍣ ;      ⇆ㅤ ㅤ ◁ㅤ ❚❚ ㅤ▷ ㅤㅤ↻  ⁷⁷⁷ ⁹⁸⁷ ⁹⁹⁰⁹   ılıılıılıılıılıılı   ▮   ▮▮    ▮▮▮     ▮▮▮▮      ▮▮▮▮▮       ▮▮▮▮▮▮ . ."
       - key: SUDO
-        value: "917025673121"
+        value: "919888280858"
       - key: WARN_COUNT
         value: "3"
       - key: ALLWAYS_ONLINE
@@ -43,4 +43,4 @@ services:
       - key: STATUS_VIEW
         value: "false"
       - key: REJECT_CALL
-        value: "false"
+        value: "true"
