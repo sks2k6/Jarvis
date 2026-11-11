@@ -9,7 +9,7 @@ Jarvis - Loki-Xer
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-const { System, isPrivate, config, toAudio, instaDL, apkDl, pinDl, spotifyMetaData, getPlaylistData, tiktokDl } = require("../lib/");
+const { System, isPrivate, config, toAudio, instaDL, apkDl, pinDl, spotifyMetaData, getPlaylistData, tiktokDl, spotifyAlbum } = require("../lib/");
 const { extractUrlsFromText, sleep, getJson, isUrl, IronMan, getBuffer } = require('./client/');
 
 
@@ -20,17 +20,17 @@ System({
   desc: 'Downloads song from Spotify'
 }, async (message, match, m) => {
   const link = (await extractUrlsFromText(match || message.reply_message?.text || ''))[0];
-  if (!link || !link.includes('spotify.com/')) return await message.reply("_Give a valid Spotify *Url*_");
+  if (!link || !link.includes('spotify.com/')) return await message.reply("Give a valid Spotify *Url*");
+  const formatTime = (ms) => {
+    if (!ms) return "0:00";
+    const totalSec = Math.floor(ms / 1000);
+    const mins = Math.floor(totalSec / 60);
+    const secs = String(totalSec % 60).padStart(2, "0");
+    return `${mins}:${secs}`;
+  };
   if (link.includes('/playlist/')) {
     const data = await getPlaylistData(link);
     if (!data || !data.tracks?.length) return await message.reply("*No tracks found in this Spotify playlist.*");
-    const formatTime = (ms) => {
-      if (!ms) return "0:00";
-      const totalSec = Math.floor(ms / 1000);
-      const mins = Math.floor(totalSec / 60);
-      const secs = String(totalSec % 60).padStart(2, "0");
-      return `${mins}:${secs}`;
-    };
     const totalDurationMs = data.tracks.reduce((acc, t) => acc + (t.durationMs || 0), 0);
     const options = data.tracks.slice(0, 12).map((u) => {
       const duration = u.durationFormatted || formatTime(u.durationMs);
@@ -40,25 +40,36 @@ System({
         id: `spotify ${u.spotifyUrl}`
       };
     });
-    const pollHeader = [
-      `*𝘚𝘱𝘰𝘵𝘪𝘧𝘺 𝘗𝘭𝘢𝘺𝘭𝘪𝘴𝘵*`,
-      ``,
-      `*▢ Title :* ${data.name}`,
-      `*▢ Author :* ${data.owner}`,
-      `*▢ Tracks :* ${data.totalTracksReturned}${data.totalTracksReturned > 12 ? " (Showing top 12)" : ""}`,
-      `*▢ Duration :* ${data.totalDurationFormatted || formatTime(totalDurationMs)}`,
-      data.description ? `*▢ Bio :* ${data.description}` : null,
-      ``,
-      `_Select a track below to download:_`
-    ].filter(line => line !== null).join("\n");
+    const pollHeader = [`*𝘚𝘱𝘰𝘵𝘪𝘧𝘺 𝘗𝘭𝘢𝘺𝘭𝘪𝘴𝘵*`, ``, `*▢ Title :* ${data.name}`, `*▢ Author :* ${data.owner}`, `*▢ Tracks :* ${data.totalTracksReturned}${data.totalTracksReturned > 12 ? " (Showing top 12)" : ""}`, `*▢ Duration :* ${data.totalDurationFormatted || formatTime(totalDurationMs)}`, data.description ? `*▢ Bio :* ${data.description}` : null, ``, `_Select a track below to download:_`].filter(line => line !== null).join("\n");
     return await message.send(
       pollHeader, {
         values: options,
         withPrefix: true,
         participates: [message.sender]
       }, "poll");
-  }
-
+  } else if (link.includes('/album/')) {
+    const album = await spotifyAlbum(link);
+    if (!album || !album.tracks?.length) return await message.reply("*No tracks found in this Spotify album.*");
+    const meta = (!album.title || !album.description) ? await spotifyMetaData(link).catch(() => null) : null;
+    const title = album.title || meta?.title || "Unknown";
+    const description = album.description || meta?.description;
+    const totalDurationMs = album.tracks.reduce((acc, t) => acc + (t.duration || 0), 0);
+    const options = album.tracks.slice(0, 12).map((u) => {
+      const name = u.name.replace(/\s*\(From ".*?"\)/i, '');
+      const rawLabel = `*# Title :* ${name}\n*Duration :* ${formatTime(u.duration)}`;
+      return {
+        displayText: rawLabel.length > 98 ? `${rawLabel.slice(0, 94)}...` : rawLabel,
+        id: `spotify ${u.url}`
+      };
+    });
+    const pollHeader = [`*𝘚𝘱𝘰𝘵𝘪𝘧𝘺 𝘈𝘭𝘣𝘶𝘮*`, ``, `*▢ Title :* ${title}`, `*▢ Tracks :* ${album.tracks.length}${album.tracks.length > 12 ? " (Showing top 12)" : ""}`, `*▢ Duration :* ${formatTime(totalDurationMs)}`, description ? `*▢ Bio :* ${description}` : null, ``, `_Select a track below to download:_`].filter(line => line !== null).join("\n");
+    return await message.send(
+      pollHeader, {
+        values: options,
+        withPrefix: true,
+        participates: [message.sender]
+      }, "poll");
+  };
   const meta = await spotifyMetaData(link);
   let txt = `*_${meta.title}_*\n*_${meta.description}_*\n\n\n\`\`\`1.⬢\`\`\` *audio*\n\`\`\`2.⬢\`\`\` *video*\n\n_*Send a number as a reply to download*_`;
   return await message.reply({ url: meta.thumbnail }, 'image', { caption: txt });
@@ -155,12 +166,11 @@ System({
     if (!url) return await message.reply('Please provide an Instagram *url*'); 
     if (!isUrl(url)) return await message.reply("Please provide a valid Instagram *url*");
     if (!url.includes("instagram.com")) return await message.reply("*Please provide a valid Instagram url*");
-    const data = await instaDL(url);
-    if (!data || data.length === 0) return await message.reply("*No content found at the provided URL*");
-    for (const imageUrl of data) {
-        if (imageUrl) return await message.sendFromUrl(imageUrl.url, { quoted: message.data });
-    };
-    return await message.reply("*Done 🤍*");
+    const result = await instaDL(url);
+    if (!result || result.length === 0) return await message.reply("*Exᴀᴍᴘʟᴇ: .story username/link*");
+    if(result.length === 1) return await message.sendFromUrl(result[0].url, { caption: "*done ♥️*", quoted: message });
+    const options = result.map((u, index) => ({ displayText:`${index + 1}/${result.length}`, id: `sendurl ${u.url}` }));
+    return await message.send("\n*Story downloader*\n", { values: options, withPrefix: true, participates: [message.sender] }, "poll");
 });
 
 System({
@@ -187,11 +197,7 @@ System({
   if (!result || result.length === 0) return await message.reply("*Exᴀᴍᴘʟᴇ: .story username/link*");
   if(result.length === 1) return await message.sendFromUrl(result[0].url, { caption: "*done ♥️*", quoted: message });
   const options = result.map((u, index) => ({ displayText:`${index + 1}/${result.length}`, id: `sendurl ${u.url}` }));
-  if(message.isGroup) return await message.send("\n*Story downloader*\n", { values: options, withPrefix: true, participates: [message.sender] }, "poll");
-  for (const media of result) {
-    await message.sendFromUrl(media.url, { quoted: message.data });
-  }
-  return await message.reply("*done ♥️*");
+  return await message.send("\n*Story downloader*\n", { values: options, withPrefix: true, participates: [message.sender] }, "poll");
 });
 
 System ({
